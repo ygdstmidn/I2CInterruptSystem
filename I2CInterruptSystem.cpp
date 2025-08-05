@@ -21,6 +21,12 @@ namespace I2CInterruptSystem
             _DataQueueIndex = 0;
         }
 
+        if (__HAL_I2C_GET_FLAG(_hi2c, I2C_FLAG_BUSY))
+        {//error 多分断線
+            _state = 2;//もう一度リセット
+            return;
+        }
+
         I2CInterruptSystemData &data = _DataQueue[_DataQueueIndex];
         HAL_StatusTypeDef status;
         switch (data.Type)
@@ -83,9 +89,8 @@ namespace I2CInterruptSystem
         }
         else if (_startFlag && _state == 2)
         {
-            _state = 0;
-            reset();
             _state = 1; // 次はsend
+            reset();
         }
     }
 
